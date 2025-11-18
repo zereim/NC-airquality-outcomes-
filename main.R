@@ -6,6 +6,11 @@ library(broom)
 # importing the data
 data <- clean_names(read_csv("2025 County Health Rankings NC.csv"))
 
+
+#
+# FUNCTIONS 
+#
+
 # creating a function that will do all of the data cleaning for me
 clean_import <- function(df, replace_header_bool = FALSE, min_character = 5) {
   # create a variable and clean the dataframe
@@ -35,6 +40,22 @@ clean_import <- function(df, replace_header_bool = FALSE, min_character = 5) {
   return(df_cleaned)
 }
 
+convert_to_numeric <- function(data) {
+  
+  numeric_candidates <- sapply(data, function(x) {
+    all(grepl("^-?\\d*\\.?\\d*$", x) | x == "" | is.na(x))
+  })
+  
+  cols_to_convert <- names(data)[numeric_candidates]
+  
+  data[cols_to_convert] <- lapply(data[cols_to_convert], as.numeric)
+  
+  return(data)
+}
+
+#
+# END OF FUNCTIONS 
+#
 
 # run a linear regression
 model_commute <- lm(
@@ -55,11 +76,6 @@ data$air_pollution_particulate_matter_average_daily_pm2_5 <-
 
 # making the chr type data into numerical 
 
-numeric_candidates <- sapply(data, function(x) all(grepl("^-?\\d*\\.?\\d*$", x) | x == "" | is.na(x)))
-
-cols_to_convert <- names(data)[numeric_candidates]
-
-data[cols_to_convert] <- lapply(data[cols_to_convert], as.numeric)
 
 
 # plotting the long commutes vs particulate matter data with a regression line 
